@@ -32,15 +32,15 @@
 
 + 我们提供了 1testAll.data、1testAll.inst、2testAll.data、2testAll.data、3testAll.data、3testAll.inst 三个测试样例的.inst 和.data 文件，用于初始化指令和数据的 Block Memory。
 +  对于任意一个测试样例，CPU 开始执行后 3 号寄存器的值会从 2 一直累增，该数字正在进行第多少项测试，执行结束后 3 号寄存器值变为 1
-+ CPU 执行后，各寄存器值符合预期
++ CPU 执行后，各寄存器值符合预期。阶段2二的测试如果能通过，默认阶段1已完成。
 + 测试用的指令流中，除了阶段一的测试指令，还需要包含的指令包括 JALR、LB、LH、LW、LBU、LHU、SB、SH、SW、BEQ、BNE、BLT、BLTU、BGE、BGEU、JAL
 + 此时**需要处理数据相关**，实现 Harzard 模块内部逻辑
 
 ### 阶段3验收要求
 
-+ 自己手写合适的测试用汇编代码，通过提供的工具生成.inst 和.data 文件，用于初始化指令和数据的Block Memory
++ 自己手写合适的测试用汇编代码，通过提供的工具生成.inst 和.data 文件，用于初始化指令和数据的Block Memory。或者使用Simulation目录下提供的CSRtest文件，执行结束后 3 号寄存器值变为 1。
 + 在我们给的代码框架上添加你设计好的 CSR 数据通路 
-+  测试用的指令流中需要包含的指令包括: CSRRW、CSRRS、CSRRC、CSRRWI、CSRRSI、CSRRCI
++ 测试用的指令流中需要包含的指令包括: CSRRW、CSRRS、CSRRC、CSRRWI、CSRRSI、CSRRCI
 + CPU 执行后，各寄存器值符合预期
 + 阶段二已经处理好数据相关，这里不再特别考察。 
 
