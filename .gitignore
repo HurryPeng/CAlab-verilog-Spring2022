@@ -1,1 +1,4 @@
-FULL-*
+FULL-*.*
+gen_part_code.py
+**/FULL-code/*
+!.gitkeep
