@@ -1,17 +1,10 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: USTC ESLAB embeded System Lab
-// Engineer: Huang Yifan (hyf15@mail.ustc.edu.cn)
-// Design Name: RV32I Core
-// Module Name: testBench
-// Target Devices: Nexys4
-// Tool Versions: Vivado 2017.4.1
 // Description: This testBench Help users to initial the bram content, by loading .data file and .inst file.
 //				Then give signals to start the execution of our cpu
 //				When all instructions finish their executions, this testBench will dump the Instruction Bram and Data Bram's content to .txt files 
-// !!! ALL YOU NEED TO CHANGE IS 4 FILE PATH BELOW !!!	
+//              !!! ALL YOU NEED TO CHANGE IS 4 FILE PATH BELOW !!!	
 //				(they are all optional, you can run cpu without change paths here,if files are failed to open, we will not dump the content to .txt and will not try to initial your bram)
-//////////////////////////////////////////////////////////////////////////////////
+
 `define DataCacheContentLoadPath "/home/ens/project/calab-verilog-ta/Lab2/Simulation/1testAll.data"                 //Modify to path/to/your/testdata
 `define InstCacheContentLoadPath "/home/ens/project/calab-verilog-ta/Lab2/Simulation/1testAll.inst"                 //Modify to path/to/your/testdata
 `define DataCacheContentSavePath "/home/ens/project/calab-verilog-ta/Lab2/Simulation/DumpDataCacheContent.txt"      //Modify to path/to/your/testdata
