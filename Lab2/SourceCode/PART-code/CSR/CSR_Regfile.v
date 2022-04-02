@@ -14,6 +14,8 @@ module CSR_Regfile(
     
     // TODO: Complete this module
 
+    assign CSR_data_read = 0;
+
     /* FIXME: Write your code here... */
 
 endmodule

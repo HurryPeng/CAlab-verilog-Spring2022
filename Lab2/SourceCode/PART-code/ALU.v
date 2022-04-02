@@ -20,17 +20,29 @@ module ALU(
 
     // TODO: Complete this module
 
+    wire [32:0] diffExt;
+    assign diffExt = { op1[31], op1 } - { op2[31], op2 };
+
 
     always @ (*)
     begin
         case(ALU_func)
-            `ADD: ALU_out = op1 + op2;
-            `SLL: ALU_out = op1 << op2[4:0];
-            `SLTU: ALU_out = (op1 < op2) ? 32'd1 : 32'd0;
-            `LUI: ALU_out = op2;
-
             /* FIXME: Write your code here... */
 
+            `SLL:   ALU_out = op1 << op2[4:0];
+            `SRL:   ALU_out = op1 >> op2[4:0];
+            `SRA:   ALU_out = $signed(op1) >>> op2[4:0];
+            `ADD:   ALU_out = op1 + op2;
+            `SUB:   ALU_out = op1 - op2;
+            `XOR:   ALU_out = op1 ^ op2;
+            `OR:    ALU_out = op1 | op2;
+            `AND:   ALU_out = op1 & op2;
+            `SLT:   ALU_out = diffExt[32];
+            `SLTU:  ALU_out = (op1 < op2) ? 1 : 0;
+            `LUI:   ALU_out = op2;
+            `OP1:   ALU_out = op1;
+            `OP2:   ALU_out = op2;
+            `NAND:  ALU_out = ~(op1 & op2);
             default: ALU_out = 32'b0;
         endcase
     end

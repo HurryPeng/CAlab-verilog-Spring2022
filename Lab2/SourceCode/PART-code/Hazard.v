@@ -48,7 +48,7 @@ module HarzardUnit(
     // TODO: Complete this module
 
 
-    // generate op1_sel
+    // generate op1_sel and op2_sel
     always @ (*)
     begin 
         if (reg1_srcE == reg_dstM && reg_write_en_MEM == 1 && reg1_srcE != 0)
@@ -65,20 +65,85 @@ module HarzardUnit(
         begin
             op1_sel = 2'b00;
         end
-    end
 
-    // generate bubbleM and flushM
-    always @ (*)
-    begin
-        if (rst)
+        if (reg2_srcE == reg_dstM && reg_write_en_MEM == 1 && reg2_srcE != 0)
         begin
-            bubbleM = 0;
-            flushM = 1;
+            // mem to ex forwarding, mem forwarding first
+            op2_sel = 2'b01;
+        end
+        else if (reg2_srcE == reg_dstW && reg_write_en_WB == 1 && reg2_srcE != 0)
+        begin
+            // wb to ex forwarding
+            op2_sel = 2'b10;
         end
         else 
         begin
+            op2_sel = 2'b00;
+        end
+    end
+
+    // generate bubble and flush
+    always @ (*)
+    begin
+        if (rst) begin
+            flushF = 1;
+            bubbleF = 0;
+            flushD = 1;
+            bubbleD = 0;
+            flushE = 1;
+            bubbleE = 0;
+            flushM = 1;
             bubbleM = 0;
+            flushW = 1;
+            bubbleW = 0;
+        end
+        else if (wb_select && (reg1_srcD == reg_dstE && reg1_srcD != 0 || reg2_srcD == reg_dstE && reg2_srcD != 0)) begin
+            flushF = 0;
+            bubbleF = 1;
+            flushD = 0;
+            bubbleD = 1;
+            flushE = 1;
+            bubbleE = 0;
             flushM = 0;
+            bubbleM = 0;
+            flushW = 0;
+            bubbleW = 0;
+        end
+        else if (br || jalr) begin
+            flushF = 0;
+            bubbleF = 0;
+            flushD = 1;
+            bubbleD = 0;
+            flushE = 1;
+            bubbleE = 0;
+            flushM = 0;
+            bubbleM = 0;
+            flushW = 0;
+            bubbleW = 0;
+        end
+        else if (jal) begin
+            flushF = 0;
+            bubbleF = 0;
+            flushD = 1;
+            bubbleD = 0;
+            flushE = 0;
+            bubbleE = 0;
+            flushM = 0;
+            bubbleM = 0;
+            flushW = 0;
+            bubbleW = 0;
+        end
+        else begin
+            flushF = 0;
+            bubbleF = 0;
+            flushD = 0;
+            bubbleD = 0;
+            flushE = 0;
+            bubbleE = 0;
+            flushM = 0;
+            bubbleM = 0;
+            flushW = 0;
+            bubbleW = 0;
         end
     end
 

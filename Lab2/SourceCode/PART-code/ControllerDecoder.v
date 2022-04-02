@@ -50,104 +50,185 @@ module ControllerDecoder(
     assign funct7 = inst[31:25];
     assign funct3 = inst[14:12];
 
-    always @ (*)
-    begin
-        if (opcode == `U_LUI)
-        begin
-            jal = 0;
-            jalr = 0;
-            op1_src = 0;
-            op2_src = 1;
-            ALU_func = `LUI;
-            br_type = 0;
-            load_npc = 0;
-            wb_select = 0;
-            load_type = 0;
-            reg_write_en = 1;
-            cache_write_en = 0;
-            imm_type = `UTYPE;
-            CSR_write_en = 0;
-            CSR_zimm_or_reg = 0;
-        end
-        else if (opcode == `J_JAL)
-        begin
-            jal = 1;
-            jalr = 0;
-            op1_src = 0;
-            op2_src = 0;
-            ALU_func = 0;
-            br_type = 0;
-            load_npc = 1;
-            wb_select = 0;
-            load_type = 0;
-            reg_write_en = 1;
-            cache_write_en = 0;
-            imm_type = `JTYPE;
-            CSR_write_en = 0;
-            CSR_zimm_or_reg = 0;
-        end
-        else if (opcode == `I_LOAD)
-        begin
-            jal = 0;
-            jalr = 0;
-            op1_src = 0;
-            op2_src = 1;
-            ALU_func = `ADD;
-            br_type = 0;
-            load_npc = 0;
-            wb_select = 1;
-            
-            reg_write_en = 1;
-            cache_write_en = 0;
-            imm_type = `ITYPE;
-            CSR_write_en = 0;
-            CSR_zimm_or_reg = 0;
-            if (funct3 == `I_LB)
-            begin
-                load_type = `LB;
-            end
-            else if (funct3 == `I_LH)
-            begin
-                load_type = `LH;
-            end
-            else if (funct3 == `I_LW)
-            begin
-                load_type = `LW;
-            end
-            else if (funct3 == `I_LBU)
-            begin
-                load_type = `LBU;
-            end
-            else if (funct3 == `I_LHU)
-            begin
-                load_type = `LHU;
-            end
-            else 
-            begin
-                reg_write_en = 0;
-                load_type = `NOREGWRITE;
-            end
-        end
+    always @ (*) begin
+        ALU_func = 0; // [3:0]
+        imm_type = 0; // [2:0]
+
+        op1_src = 0;
+        op2_src = 0;
+
+        reg_write_en = 0;
+        load_npc = 0;
+        wb_select = 0;
+
+        br_type = 0; // [2:0]
+        jal = 0;
+        jalr = 0;
+
+        load_type = 0; // [2:0]
+        cache_write_en = 0; // [3:0]
+
+        CSR_write_en = 0;
+        CSR_zimm_or_reg = 0;
 
         /* FIXME: Write your code here... */
 
-        else 
-        begin
-            jal = 0;
-            jalr = 0;
-            op1_src = 0;
-            op2_src = 0;
-            ALU_func = 0;
-            br_type = 0;
-            load_npc = 0;
-            wb_select = 0;
-            load_type = 0;
-            reg_write_en = 0;
-            cache_write_en = 0;
-            imm_type = 0;
-            CSR_write_en = 0;
-            CSR_zimm_or_reg = 0;
-        end
+        case (opcode)
+            `U_LUI: begin
+                ALU_func = `LUI;
+                imm_type = `UTYPE;
+
+                op2_src = 1;
+
+                reg_write_en = 1;
+            end
+
+            `U_AUIPC: begin
+                ALU_func = `ADD;
+                imm_type = `UTYPE;
+
+                op1_src = 1;
+                op2_src = 1;
+
+                reg_write_en = 1;
+            end
+            
+            `J_JAL: begin
+                imm_type = `JTYPE;
+
+                reg_write_en = 1;
+                load_npc = 1;
+                
+                jal = 1;
+            end
+
+            `B_TYPE: begin
+
+                imm_type = `BTYPE;
+
+                op1_src = 0;
+                op2_src = 0;
+
+                br_type = `NOBRANCH;
+
+                case (funct3)
+                    `B_BEQ: br_type = `BEQ;
+                    `B_BNE: br_type = `BNE;
+                    `B_BLT: br_type = `BLT;
+                    `B_BGE: br_type = `BGE;
+                    `B_BLTU:br_type = `BLTU;
+                    `B_BGEU:br_type = `BGEU;
+                endcase
+                
+            end
+
+            `I_LOAD: begin
+                ALU_func = `ADD;
+                imm_type = `ITYPE;
+
+                op2_src = 1;
+
+                reg_write_en = 1;
+                wb_select = 1;
+                
+                case (funct3)
+                    `I_LW:  load_type = `LW;
+                    `I_LB:  load_type = `LB;
+                    `I_LH:  load_type = `LH;
+                    `I_LBU: load_type = `LBU;
+                    `I_LHU: load_type = `LHU;
+                    default: begin
+                        reg_write_en = 0;
+                        load_type = `NOREGWRITE;
+                    end
+                endcase
+            end
+
+            `I_ARI: begin
+                ALU_func = 0;
+                imm_type = `ITYPE;
+
+                op1_src = 0;
+                op2_src = 1;
+
+                reg_write_en = 1;
+
+                case (funct3)
+                    `I_ADDI:    ALU_func = `ADD;
+                    `I_SLTI:    ALU_func = `SLT;
+                    `I_SLTIU:   ALU_func = `SLTU;
+                    `I_XORI:    ALU_func = `XOR;
+                    `I_ORI:     ALU_func = `OR;
+                    `I_ANDI:    ALU_func = `AND;
+                    `I_SLLI:    ALU_func = `SLL;
+                    `I_SR: begin
+                        case (funct7)
+                            `I_SRAI:    ALU_func = `SRA;
+                            `I_SRLI:    ALU_func = `SRL;
+                        endcase
+                    end
+                endcase
+            end
+
+            `I_JALR: begin
+                ALU_func = `ADD;
+                imm_type = `ITYPE;
+
+                op1_src = 0;
+                op2_src = 1;
+
+                reg_write_en = 1;
+                load_npc = 1;
+
+                jalr = 1;
+            end
+
+            `S_TYPE: begin
+                ALU_func = `ADD;
+                imm_type = `STYPE;
+
+                op1_src = 0;
+                op2_src = 1;
+
+                cache_write_en = 0;
+
+                case (funct3)
+                    `S_SB: cache_write_en = 4'b0001;
+                    `S_SH: cache_write_en = 4'b0011;
+                    `S_SW: cache_write_en = 4'b1111;
+                endcase
+            end
+
+            `R_TYPE: begin
+                ALU_func = 0;
+
+                op1_src = 0;
+                op2_src = 0;
+
+                reg_write_en = 1;
+
+                case (funct3)
+                    `R_AS: begin
+                        case (funct7)
+                            `R_ADD: ALU_func = `ADD;
+                            `R_SUB: ALU_func = `SUB;
+                        endcase
+                    end
+                    `R_SLL: ALU_func = `SLL;
+                    `R_SLT: ALU_func = `SLT;
+                    `R_SLTU:ALU_func = `SLTU;
+                    `R_XOR: ALU_func = `XOR;
+                    `R_SR: begin
+                        case (funct7)
+                            `R_SRL: ALU_func = `SRL;
+                            `R_SRA: ALU_func = `SRA;
+                        endcase
+                    end
+                    `R_OR:  ALU_func = `OR;
+                    `R_AND: ALU_func = `AND;
+                endcase
+            end
+        endcase
     end
 
 endmodule

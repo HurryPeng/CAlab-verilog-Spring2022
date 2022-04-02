@@ -18,17 +18,22 @@ module BranchDecision(
     );
 
     // TODO: Complete this module
+    wire [32:0] diffExt;
+    assign diffExt = { reg1[31], reg1 } - { reg2[31], reg2 };
 
 
     always @ (*)
     begin
         case(br_type)
-            `NOBRANCH: br = 0;
-            `BEQ: br = (reg1 == reg2) ? 1 : 0;
-            `BLTU: br = (reg1 < reg2) ? 1 : 0;
-
             /* FIXME: Write your code here... */
 
+            `NOBRANCH:  br = 0;
+            `BEQ:       br = (reg1 == reg2) ? 1 : 0;
+            `BNE:       br = (reg1 != reg2) ? 1 : 0;
+            `BLT:       br = diffExt[32];
+            `BLTU:      br = (reg1 < reg2) ? 1 : 0;
+            `BGE:       br = !diffExt[32];
+            `BGEU:      br = (reg1 >= reg2) ? 1 : 0;
             default: br = 0;
         endcase
     end

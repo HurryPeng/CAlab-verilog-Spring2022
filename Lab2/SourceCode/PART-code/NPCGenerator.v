@@ -25,4 +25,11 @@ module NPC_Generator(
 
     /* FIXME: Write your code here... */
 
+    always @* begin
+        if (br) NPC = br_target;
+        else if (jalr) NPC = jalr_target;
+        else if (jal) NPC = jal_target;
+        else NPC = PC + 4;
+    end
+
 endmodule

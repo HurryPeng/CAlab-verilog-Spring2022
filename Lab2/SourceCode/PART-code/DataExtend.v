@@ -21,37 +21,23 @@ module DataExtend(
     );
 
     // TODO: Complete this module
+
+    wire [31:0] shifted_data;
+    assign shifted_data = data >> (8 * addr);
     
     always @ (*)
     begin
-        if (load_type == `LHU)
-        begin
-            case(addr)
-                2'b00: dealt_data = {16'b0, data[15:0]};
-                2'b10: dealt_data = {16'b0, data[31:16]};
-                default : dealt_data = 32'b0;
-            endcase
-        end
-        else if (load_type == `NOREGWRITE)
-        begin
-            dealt_data = data;
-        end
-        else if (load_type == `LH)
-        begin
-            case(addr)
-                2'b00: dealt_data = {{16{data[15]}}, data[15:0]};
-                2'b10: dealt_data = {{16{data[31]}}, data[31:16]};
-                default : dealt_data = 32'b0;
-            endcase
-        end
-
         /* FIXME: Write your code here... */
-
-        else
-        begin
-            dealt_data = 32'b0;
-        end
-
+        
+        case (load_type)
+            `NOREGWRITE:dealt_data = data;
+            `LW:        dealt_data = shifted_data;
+            `LH:        dealt_data = {{16{shifted_data[15]}}, shifted_data[15:0]};
+            `LHU:       dealt_data = {16'b0, shifted_data[15:0]};
+            `LB:        dealt_data = {{24{shifted_data[7]}}, shifted_data[7:0]};
+            `LBU:       dealt_data = {24'b0, shifted_data[7:0]};
+            default:    dealt_data = 0;
+        endcase
     end
 
 endmodule
