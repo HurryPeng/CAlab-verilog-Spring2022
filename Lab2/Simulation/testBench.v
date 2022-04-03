@@ -5,8 +5,8 @@
 //              !!! ALL YOU NEED TO CHANGE IS 4 FILE PATH BELOW !!!	
 //				(they are all optional, you can run cpu without change paths here,if files are failed to open, we will not dump the content to .txt and will not try to initial your bram)
 
-`define DataCacheContentLoadPath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/3testAll.data"                 // Modify to path/to/your/testdata
-`define InstCacheContentLoadPath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/3testAll.inst"                 // Modify to path/to/your/testdata
+`define DataCacheContentLoadPath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/CSRtest.data"                 // Modify to path/to/your/testdata
+`define InstCacheContentLoadPath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/CSRtest.inst"                 // Modify to path/to/your/testdata
 `define DataCacheContentSavePath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/DumpDataCacheContent.txt"      // Modify to path/to/your/testdata
 `define InstCacheContentSavePath "D:/Documents/GitHub/calab-verilog/Lab2/Simulation/DumpInstCacheContent.txt"      // Modify to path/to/your/testdata
 `define BRAMWORDS 4096  //a word is 32bit, so our bram is 4096*32bit

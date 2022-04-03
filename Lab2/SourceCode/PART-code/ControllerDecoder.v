@@ -228,6 +228,45 @@ module ControllerDecoder(
                     `R_AND: ALU_func = `AND;
                 endcase
             end
+
+            `I_CSR: begin
+                ALU_func = 0;
+
+                op1_src = 0;
+                op2_src = 0;
+
+                reg_write_en = 1;
+
+                CSR_write_en = 1;
+                CSR_zimm_or_reg = 0;
+                
+                case (funct3)
+                    `I_CSRRC:  begin
+                        ALU_func = `NOR;
+                        CSR_zimm_or_reg = 0;
+                    end  
+                    `I_CSRRCI: begin
+                        ALU_func = `NOR;
+                        CSR_zimm_or_reg = 1;
+                    end  
+                    `I_CSRRS:  begin
+                        ALU_func = `OR;
+                        CSR_zimm_or_reg = 0;
+                    end  
+                    `I_CSRRSI: begin
+                        ALU_func = `OR;
+                        CSR_zimm_or_reg = 1;
+                    end  
+                    `I_CSRRW:  begin
+                        ALU_func = `OP1;
+                        CSR_zimm_or_reg = 0;
+                    end  
+                    `I_CSRRWI: begin
+                        ALU_func = `OP1;
+                        CSR_zimm_or_reg = 1;
+                    end  
+                endcase
+            end
         endcase
     end
 
