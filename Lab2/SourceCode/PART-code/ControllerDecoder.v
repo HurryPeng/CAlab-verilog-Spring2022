@@ -242,11 +242,11 @@ module ControllerDecoder(
                 
                 case (funct3)
                     `I_CSRRC:  begin
-                        ALU_func = `NOR;
+                        ALU_func = `CLR;
                         CSR_zimm_or_reg = 0;
                     end  
                     `I_CSRRCI: begin
-                        ALU_func = `NOR;
+                        ALU_func = `CLR;
                         CSR_zimm_or_reg = 1;
                     end  
                     `I_CSRRS:  begin
