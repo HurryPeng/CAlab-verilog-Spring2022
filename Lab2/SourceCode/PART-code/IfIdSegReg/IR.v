@@ -53,7 +53,7 @@ module IR_ID(
     begin
         bubble_ff <= bubbleD;
         flush_ff <= flushD;
-        inst_ID_old <= inst_ID_raw;
+        inst_ID_old <= inst_ID;
     end
 
     assign inst_ID = bubble_ff ? inst_ID_old : (flush_ff ? 32'b0 : inst_ID_raw);
