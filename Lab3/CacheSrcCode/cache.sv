@@ -1,6 +1,6 @@
 // `define STRATEGY_ZERO
-`define STRATEGY_FIFO
-// `define STRATEGY_LRU
+// `define STRATEGY_FIFO
+`define STRATEGY_LRU
 
 module cache #(
     parameter  LINE_ADDR_LEN = 3, // line内地址长度，决定了每个line具有2^3个word
@@ -85,7 +85,7 @@ reg [WAY_ADDR_LEN-1:0] victim_way;
 
     always @ (posedge clk or posedge rst) begin
         if (rst) begin
-            for (integer i = 0; i < WAY_CNT; i++)
+            for (integer i = 0; i < SET_SIZE; i++)
                 next_victim_way[i] <= 0;
         end
         else begin
@@ -98,8 +98,39 @@ reg [WAY_ADDR_LEN-1:0] victim_way;
         end
     end
 
+
 `elsif STRATEGY_LRU
-    // reg [WAY_ADDR_LEN-1:0] next_victim_way [SET_SIZE];
+    reg [WAY_CNT-1:0] usage_stats [SET_SIZE];
+
+    always @* begin
+        victim_way = 0;
+        for (integer i = 0; i < WAY_CNT; i++) begin
+            if (usage_stats[set_addr][i] == 0) begin
+                victim_way = i;
+                break;
+            end
+        end
+    end
+
+    reg [WAY_CNT-1:0] usage_stats_OR_;
+    reg [WAY_CNT-1:0] test;
+    always @* begin
+        test = ~(usage_stats[set_addr] | (1'b1 << hit_way));
+        usage_stats_next = usage_stats[set_addr] | (1'b1 << hit_way);
+        if (~(usage_stats[set_addr] | (1'b1 << hit_way)) == 0) usage_stats_next = (1'b1 << hit_way);
+    end
+
+    always @ (posedge clk or posedge rst) begin
+        if (rst) begin
+            for (integer i = 0; i < SET_SIZE; i++)
+                usage_stats[i] <= 0;
+        end
+        else begin
+            if (cache_hit && (rd_req | wr_req) && cache_stat == IDLE) begin
+                usage_stats[set_addr] <= usage_stats_next;
+            end
+        end
+    end
 
 `endif
 
@@ -182,8 +213,3 @@ main_mem #(     // 主存，每次读写以line 为单位
 );
 
 endmodule
-
-
-
-
-
