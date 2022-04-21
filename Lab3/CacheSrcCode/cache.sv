@@ -1,4 +1,6 @@
-
+// `define STRATEGY_ZERO
+`define STRATEGY_FIFO
+// `define STRATEGY_LRU
 
 module cache #(
     parameter  LINE_ADDR_LEN = 3, // line内地址长度，决定了每个line具有2^3个word
@@ -15,6 +17,9 @@ module cache #(
     input  wr_req,             // 写请求信号
     input  [31:0] wr_data      // 要写入的数据，一次写一个word
 );
+
+wire true;
+assign true = 1;
 
 localparam MEM_ADDR_LEN    = TAG_ADDR_LEN + SET_ADDR_LEN ; // 计算主存地址长度 MEM_ADDR_LEN，主存大小=2^MEM_ADDR_LEN个line
 localparam UNUSED_ADDR_LEN = 32 - TAG_ADDR_LEN - SET_ADDR_LEN - LINE_ADDR_LEN - 2 ;       // 计算未使用的地址的长度
@@ -48,8 +53,8 @@ wire mem_gnt;      // 主存响应读写的握手信号
 
 assign {unused_addr, tag_addr, set_addr, line_addr, word_addr} = addr;  // 拆分 32bit ADDR
 
-reg cache_hit = 1'b0;
-reg [WAY_ADDR_LEN-1:0] hit_way = 0;
+reg cache_hit;
+reg [WAY_ADDR_LEN-1:0] hit_way;
 always @ (*) begin              // 判断 输入的address 是否在 cache 中命中
     cache_hit = 1'b0;
     hit_way = 0;
@@ -57,12 +62,46 @@ always @ (*) begin              // 判断 输入的address 是否在 cache 中�
         if (valid[set_addr][i] && cache_tags[set_addr][i] == tag_addr) begin   // 如果 cache line有效，并且tag与输入地址中的tag相等，则命中
             cache_hit = 1'b1;
             hit_way = i;
+            break;
         end
     end
 end
 
-// Hard-coded swap out way 0, for testing
-reg [WAY_ADDR_LEN-1:0] victim_way = 0;
+reg [WAY_ADDR_LEN-1:0] victim_way;
+
+`ifdef STRATEGY_ZERO
+    always @* begin
+        if (true) begin
+            victim_way = 0;
+        end
+    end
+
+`elsif STRATEGY_FIFO
+    reg [WAY_ADDR_LEN-1:0] next_victim_way [SET_SIZE];
+
+    always @* begin
+        victim_way = next_victim_way[set_addr];
+    end
+
+    always @ (posedge clk or posedge rst) begin
+        if (rst) begin
+            for (integer i = 0; i < WAY_CNT; i++)
+                next_victim_way[i] <= 0;
+        end
+        else begin
+            if (!cache_hit && (rd_req | wr_req) && cache_stat == SWAP_IN_OK) begin
+                // next_victim_way is held unchanged until swap in has finished
+                if (next_victim_way[set_addr] != WAY_CNT - 1)
+                    next_victim_way[set_addr] <= next_victim_way[set_addr] + 1;
+                else next_victim_way[set_addr] <= 0;
+            end
+        end
+    end
+
+`elsif STRATEGY_LRU
+    // reg [WAY_ADDR_LEN-1:0] next_victim_way [SET_SIZE];
+
+`endif
 
 always @ (posedge clk or posedge rst) begin     // ?? cache ???
     if(rst) begin
