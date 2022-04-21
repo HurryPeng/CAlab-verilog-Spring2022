@@ -112,12 +112,12 @@ reg [WAY_ADDR_LEN-1:0] victim_way;
         end
     end
 
-    reg [WAY_CNT-1:0] usage_stats_OR_;
-    reg [WAY_CNT-1:0] test;
+    reg [WAY_CNT-1:0] usage_stats_OR_newuse;
+    reg [WAY_CNT-1:0] usage_stats_next;
     always @* begin
-        test = ~(usage_stats[set_addr] | (1'b1 << hit_way));
-        usage_stats_next = usage_stats[set_addr] | (1'b1 << hit_way);
-        if (~(usage_stats[set_addr] | (1'b1 << hit_way)) == 0) usage_stats_next = (1'b1 << hit_way);
+        usage_stats_OR_newuse = usage_stats[set_addr] | (1'b1 << hit_way);
+        usage_stats_next = usage_stats_OR_newuse;
+        if (usage_stats_OR_newuse == (1 << WAY_CNT) - 1) usage_stats_next = (1'b1 << hit_way);
     end
 
     always @ (posedge clk or posedge rst) begin
