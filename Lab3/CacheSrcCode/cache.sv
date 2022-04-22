@@ -212,4 +212,18 @@ main_mem #(     // 主存，每次读写以line 为单位
     .wr_line        ( mem_wr_line            )
 );
 
+reg [31:0] stats_access;
+reg [31:0] stats_miss;
+
+always @ (posedge clk or posedge rst) begin
+    if (rst) begin
+        stats_access <= 0;
+        stats_miss <= 0;
+    end
+    else begin
+        if (cache_stat == SWAP_IN_OK) stats_miss <= stats_miss + 1;
+        if (cache_stat == IDLE && (rd_req | wr_req) && cache_hit) stats_access <= stats_access + 1;
+    end
+end
+
 endmodule
