@@ -1,5 +1,7 @@
 # lab4 分支预测
 
+**暂定2022.5.8验收**
+
 ### 实验目的
 * 实现BTB（Branch Target Buffer）和BHT（Branch History Table）两种动态分支预测器
 * 体会动态分支预测对流水线性能的影响
