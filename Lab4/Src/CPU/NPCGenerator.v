@@ -16,8 +16,8 @@
     // 实现NPC_Generator
 
 module NPC_Generator(
-    input wire [31:0] PC, jal_target, jalr_target, br_target,
-    input wire jal, jalr, br,
+    input wire [31:0] PC, jal_target, jalr_target, br_target, predictTarget,
+    input wire jal, jalr, br, predict,
     output reg [31:0] NPC
     );
 
@@ -29,6 +29,7 @@ module NPC_Generator(
         if (br) NPC = br_target;
         else if (jalr) NPC = jalr_target;
         else if (jal) NPC = jal_target;
+        else if (predict) NPC = predictTarget;
         else NPC = PC + 4;
     end
 

@@ -49,6 +49,9 @@ module RV32ICore(
     wire [31:0] reg1_forwarding, reg2_forwarding;
     wire op1_src_EX, op2_src_EX;
 
+    wire predictIF, predictID, predictEX;
+    wire [31:0] predictTarget;
+
     wire miss;
     
     // CSR Instruction 
@@ -117,9 +120,11 @@ module RV32ICore(
         .jal_target(jal_target),
         .jalr_target(ALU_out),
         .br_target(brFlushTarget),
+        .predictTarget(predictTarget),
         .jal(jal),
         .jalr(jalr_EX),
         .br(brFlush),
+        .predict(predictIF),
         .NPC(NPC)
     );
 
@@ -157,6 +162,19 @@ module RV32ICore(
         .debug_input(CPU_Debug_InstCache_WD2),
         .inst_ID(inst_ID),
         .debug_data(CPU_Debug_InstCache_RD2)
+    );
+
+    BTB BTB1(
+        .predictPc(PC_IF),
+        .predict(predictIF),
+        .predictTarget(predictTarget),
+
+        .clk(clk),
+        .rst(rst),
+        .update(0),
+        .set(0),
+        .updatePc(0),
+        .updateTarget(0)
     );
 
 
