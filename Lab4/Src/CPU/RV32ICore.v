@@ -19,8 +19,8 @@ module RV32ICore(
     
 	//wire values definitions
     wire bubbleF, flushF, bubbleD, flushD, bubbleE, flushE, bubbleM, flushM, bubbleW, flushW;
-    wire [31:0] jal_target, br_target;
-    wire jal, br;
+    wire [31:0] jal_target, br_target, brFlushTarget;
+    wire jal, brFlush;
     wire jalr_ID, jalr_EX;
     wire [31:0] NPC, PC_IF, PC_ID, PC_EX;
     wire [31:0] inst_ID;
@@ -116,10 +116,10 @@ module RV32ICore(
         .PC(PC_IF),
         .jal_target(jal_target),
         .jalr_target(ALU_out),
-        .br_target(br_target),
+        .br_target(brFlushTarget),
         .jal(jal),
         .jalr(jalr_EX),
-        .br(br),
+        .br(brFlush),
         .NPC(NPC)
     );
 
@@ -319,11 +319,21 @@ module RV32ICore(
         .ALU_out(ALU_out)
     );
 
+    // BranchDecision BranchDecision1(
+    //     .reg1(reg1_forwarding),
+    //     .reg2(reg2_forwarding),
+    //     .br_type(br_type_EX),
+    //     .br(br)
+    // );
     BranchDecision BranchDecision1(
+        .predict(0),
+        .pc(PC_EX),
+        .br_target(br_target),
         .reg1(reg1_forwarding),
         .reg2(reg2_forwarding),
         .br_type(br_type_EX),
-        .br(br)
+        .brFlush(brFlush),
+        .brFlushTarget(brFlushTarget)
     );
     
     
@@ -433,7 +443,7 @@ module RV32ICore(
         .reg_dstE(reg_dest_EX),
         .reg_dstM(reg_dest_MEM),
         .reg_dstW(reg_dest_WB),
-        .br(br),
+        .br(brFlush),
         .jalr(jalr_EX),
         .jal(jal),
         .wb_select(wb_select_EX),

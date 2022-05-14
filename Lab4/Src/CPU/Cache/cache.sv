@@ -3,10 +3,10 @@
 `define STRATEGY_LRU
 
 module cache #(
-    parameter  LINE_ADDR_LEN = 4, // line内地址长度，决定了每个line具有2^3个word
+    parameter  LINE_ADDR_LEN = 3, // line内地址长度，决定了每个line具有2^3个word
     parameter  SET_ADDR_LEN  = 3, // 组地址长度，决定了一共有2^3=8组
-    parameter  TAG_ADDR_LEN  = 5, // tag长度
-    parameter  WAY_CNT       = 4, // 组相连度，决定了每组中有多少路line，这里是直接映射型cache，因此该参数没用到
+    parameter  TAG_ADDR_LEN  = 6, // tag长度
+    parameter  WAY_CNT       = 1, // 组相连度，决定了每组中有多少路line，这里是直接映射型cache，因此该参数没用到
     parameter  WAY_ADDR_LEN  = 4  // 至少需要有 1 << WAY_ADDR_LEN 不小于 WAY_CNT
 )(
     input  clk, rst,

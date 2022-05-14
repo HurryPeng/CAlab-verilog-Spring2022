@@ -12,10 +12,16 @@
 
 `include "Parameters.v"   
 module BranchDecision(
+    input wire predict,
+    input wire [31:0] pc,
+    input wire [31:0] br_target,
     input wire [31:0] reg1, reg2,
     input wire [2:0] br_type,
-    output reg br
+    output reg brFlush,
+    output reg [31:0] brFlushTarget
     );
+
+    reg br;
 
     // TODO: Complete this module
     wire [32:0] diffExt;
@@ -34,8 +40,22 @@ module BranchDecision(
             `BLTU:      br = (reg1 < reg2) ? 1 : 0;
             `BGE:       br = !diffExt[32];
             `BGEU:      br = (reg1 >= reg2) ? 1 : 0;
-            default: br = 0;
+            default:    br = 0;
         endcase
+    end
+
+    always @* begin
+        brFlush = 0;
+        brFlushTarget = 0;
+        if (br != predict) begin
+            brFlush = 1;
+            if (br) begin
+                brFlushTarget = br_target;
+            end
+            else begin
+                brFlushTarget = pc + 4;
+            end
+        end
     end
 
 endmodule
