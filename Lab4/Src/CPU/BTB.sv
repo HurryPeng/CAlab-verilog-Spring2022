@@ -33,6 +33,7 @@ module BTB #(
         predictTarget = 0;
 
         if (valid[predictSetAddr] && btbTags[predictSetAddr] == predictTagAddr) begin
+            // Comment the next line to disable prediction
             predict = 1;
             predictTarget = btbMem[predictSetAddr];
         end

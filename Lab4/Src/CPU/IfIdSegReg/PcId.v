@@ -14,18 +14,25 @@
 module PC_ID(
     input wire clk, bubbleD, flushD,
     input wire [31:0] PC_IF,
-    output reg [31:0] PC_ID
+    input wire predictIF,
+    output reg [31:0] PC_ID,
+    output reg predictID
     );
 
     initial PC_ID = 0;
+    initial predictID = 0;
     
     always@(posedge clk)
         if (!bubbleD) 
         begin
-            if (flushD)
+            if (flushD) begin
                 PC_ID <= 0;
-            else 
+                predictID <= 0;
+            end
+            else begin
                 PC_ID <= PC_IF;
+                predictID <= predictIF;
+            end
         end
     
 endmodule

@@ -148,7 +148,9 @@ module RV32ICore(
         .bubbleD(bubbleD),
         .flushD(flushD),
         .PC_IF(PC_IF),
-        .PC_ID(PC_ID)
+        .predictIF(predictIF),
+        .PC_ID(PC_ID),
+        .predictID(predictID)
     );
 
 
@@ -169,12 +171,12 @@ module RV32ICore(
         .predict(predictIF),
         .predictTarget(predictTarget),
 
-        .clk(clk),
-        .rst(rst),
-        .update(0),
-        .set(0),
-        .updatePc(0),
-        .updateTarget(0)
+        .clk(CPU_CLK),
+        .rst(CPU_RST),
+        .update(brFlush),
+        .set(!predictEX),
+        .updatePc(PC_EX),
+        .updateTarget(brFlushTarget)
     );
 
 
@@ -241,7 +243,9 @@ module RV32ICore(
         .bubbleE(bubbleE),
         .flushE(flushE),
         .PC_ID(PC_ID),
-        .PC_EX(PC_EX)
+        .predictID(predictID),
+        .PC_EX(PC_EX),
+        .predictEX(predictEX)
     );
 
     BR_Target_EX BR_Target_EX1(
@@ -344,7 +348,7 @@ module RV32ICore(
     //     .br(br)
     // );
     BranchDecision BranchDecision1(
-        .predict(0),
+        .predict(predictEX),
         .pc(PC_EX),
         .br_target(br_target),
         .reg1(reg1_forwarding),
@@ -353,10 +357,15 @@ module RV32ICore(
         .brFlush(brFlush),
         .brFlushTarget(brFlushTarget)
     );
-    
-    
 
-    
+    BranchStats BranchStats1(
+        .clk(CPU_CLK),
+        .rst(CPU_RST),
+        .bubbleE(bubbleE),
+        .br_type(br_type_EX),
+        .predict(predictEX),
+        .brFlush(brFlush)
+    );
 
     Result_MEM Result_MEM1(
         .clk(CPU_CLK),
