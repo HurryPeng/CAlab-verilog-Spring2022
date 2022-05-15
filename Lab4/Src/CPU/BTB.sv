@@ -1,3 +1,7 @@
+// `define STRATEGY_ZERO
+`define STRATEGY_BTB
+// `define STRATEGY_BHT
+
 module BTB #(
     parameter  SIZE_LEN = 4
 )(
@@ -8,7 +12,7 @@ module BTB #(
     input wire clk,
     input wire rst,
     input wire update,
-    input wire set,
+    input wire br,
     input wire [31:0] updatePc,
     input wire [31:0] updateTarget
 );
@@ -19,6 +23,7 @@ module BTB #(
     reg [31:0] btbMem [SIZE];
     reg [TAG_LEN-1:0] btbTags [SIZE];
     reg valid [SIZE];
+    reg [1:0] bhtMem [SIZE];
 
     wire [TAG_LEN-1:0] predictTagAddr;
     wire [SIZE_LEN-1:0] predictSetAddr;
@@ -33,8 +38,14 @@ module BTB #(
         predictTarget = 0;
 
         if (valid[predictSetAddr] && btbTags[predictSetAddr] == predictTagAddr) begin
-            // Comment the next line to disable prediction
-            predict = 1;
+            `ifdef STRATEGY_ZERO
+                predict = 0;
+            `elsif STRATEGY_BTB
+                predict = 1;
+            `elsif STRATEGY_BHT
+                predict = (bhtMem[predictSetAddr] > 1);
+            `endif
+
             predictTarget = btbMem[predictSetAddr];
         end
     end
@@ -45,20 +56,40 @@ module BTB #(
                 btbMem[i] <= 0;
                 btbTags[i] <= 0;
                 valid[i] <= 0;
+                bhtMem[i] <= 0;
             end
         end
         else begin
             if (update) begin
-                if (set) begin
-                    btbMem[updateSetAddr] <= updateTarget;
-                    btbTags[updateSetAddr] <= updateTagAddr;
-                    valid[updateSetAddr] <= 1;
-                end
-                else begin
-                    btbMem[updateSetAddr] <= 0;
-                    btbTags[updateSetAddr] <= 0;
-                    valid[updateSetAddr] <= 0;
-                end
+                `ifdef STRATEGY_BTB
+                    if (br) begin
+                        btbMem[updateSetAddr] <= updateTarget;
+                        btbTags[updateSetAddr] <= updateTagAddr;
+                        valid[updateSetAddr] <= 1;
+                    end
+                    else begin
+                        btbMem[updateSetAddr] <= 0;
+                        btbTags[updateSetAddr] <= 0;
+                        valid[updateSetAddr] <= 0;
+                    end
+                `elsif STRATEGY_BHT
+                    if (br) begin
+                        btbMem[updateSetAddr] <= updateTarget;
+                        btbTags[updateSetAddr] <= updateTagAddr;
+                        valid[updateSetAddr] <= 1;
+                        if (valid[updateSetAddr] && btbTags[updateSetAddr] == updateTagAddr) begin
+                            if (bhtMem[updateSetAddr] < 3) bhtMem[updateSetAddr] <= bhtMem[updateSetAddr] + 1;
+                        end
+                        else begin
+                            bhtMem[updateSetAddr] <= 1;
+                        end
+                    end
+                    else begin
+                        if (valid[updateSetAddr] && btbTags[updateSetAddr] == updateTagAddr) begin
+                            if (bhtMem[updateSetAddr] > 0) bhtMem[updateSetAddr] <= bhtMem[updateSetAddr] - 1;
+                        end
+                    end
+                `endif
             end
         end
     end

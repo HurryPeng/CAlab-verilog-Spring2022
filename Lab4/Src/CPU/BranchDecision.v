@@ -17,11 +17,10 @@ module BranchDecision(
     input wire [31:0] br_target,
     input wire [31:0] reg1, reg2,
     input wire [2:0] br_type,
+    output reg br,
     output reg brFlush,
     output reg [31:0] brFlushTarget
     );
-
-    reg br;
 
     // TODO: Complete this module
     wire [32:0] diffExt;
