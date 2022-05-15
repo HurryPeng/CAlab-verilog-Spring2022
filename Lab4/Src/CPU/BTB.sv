@@ -81,7 +81,7 @@ module BTB #(
                             if (bhtMem[updateSetAddr] < 3) bhtMem[updateSetAddr] <= bhtMem[updateSetAddr] + 1;
                         end
                         else begin
-                            bhtMem[updateSetAddr] <= 1;
+                            bhtMem[updateSetAddr] <= 2;
                         end
                     end
                     else begin
