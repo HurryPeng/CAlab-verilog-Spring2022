@@ -1,9 +1,9 @@
-// `define STRATEGY_ZERO
-// `define STRATEGY_BTB
-`define STRATEGY_BHT
+// `define PREDICT_STRATEGY_ZERO
+// `define PREDICT_STRATEGY_BTB
+`define PREDICT_STRATEGY_BHT
 
 module BTB #(
-    parameter  SIZE_LEN = 6
+    parameter  SIZE_LEN = 7
 )(
     input wire [31:0] predictPc,
     output reg predict,
@@ -38,11 +38,11 @@ module BTB #(
         predictTarget = 0;
 
         if (valid[predictSetAddr] && btbTags[predictSetAddr] == predictTagAddr) begin
-            `ifdef STRATEGY_ZERO
+            `ifdef PREDICT_STRATEGY_ZERO
                 predict = 0;
-            `elsif STRATEGY_BTB
+            `elsif PREDICT_STRATEGY_BTB
                 predict = 1;
-            `elsif STRATEGY_BHT
+            `elsif PREDICT_STRATEGY_BHT
                 predict = (bhtMem[predictSetAddr] > 1);
             `endif
 
@@ -61,7 +61,7 @@ module BTB #(
         end
         else begin
             if (update) begin
-                `ifdef STRATEGY_BTB
+                `ifdef PREDICT_STRATEGY_BTB
                     if (br) begin
                         btbMem[updateSetAddr] <= updateTarget;
                         btbTags[updateSetAddr] <= updateTagAddr;
@@ -72,7 +72,7 @@ module BTB #(
                         btbTags[updateSetAddr] <= 0;
                         valid[updateSetAddr] <= 0;
                     end
-                `elsif STRATEGY_BHT
+                `elsif PREDICT_STRATEGY_BHT
                     if (br) begin
                         btbMem[updateSetAddr] <= updateTarget;
                         btbTags[updateSetAddr] <= updateTagAddr;

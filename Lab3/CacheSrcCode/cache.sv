@@ -1,6 +1,6 @@
-// `define STRATEGY_ZERO
-// `define STRATEGY_FIFO
-`define STRATEGY_LRU
+// `define CACHE_STRATEGY_ZERO
+// `define CACHE_STRATEGY_FIFO
+`define CACHE_STRATEGY_LRU
 
 module cache #(
     parameter  LINE_ADDR_LEN = 3, // line内地址长度，决定了每个line具有2^3个word
@@ -69,14 +69,14 @@ end
 
 reg [WAY_ADDR_LEN-1:0] victim_way;
 
-`ifdef STRATEGY_ZERO
+`ifdef CACHE_STRATEGY_ZERO
     always @* begin
         if (true) begin
             victim_way = 0;
         end
     end
 
-`elsif STRATEGY_FIFO
+`elsif CACHE_STRATEGY_FIFO
     reg [WAY_ADDR_LEN-1:0] next_victim_way [SET_SIZE];
 
     always @* begin
@@ -99,7 +99,7 @@ reg [WAY_ADDR_LEN-1:0] victim_way;
     end
 
 
-`elsif STRATEGY_LRU
+`elsif CACHE_STRATEGY_LRU
     reg [WAY_CNT-1:0] usage_stats [SET_SIZE];
 
     always @* begin
