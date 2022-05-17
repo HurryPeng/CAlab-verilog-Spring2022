@@ -1,9 +1,9 @@
 // `define STRATEGY_ZERO
-`define STRATEGY_BTB
-// `define STRATEGY_BHT
+// `define STRATEGY_BTB
+`define STRATEGY_BHT
 
 module BTB #(
-    parameter  SIZE_LEN = 4
+    parameter  SIZE_LEN = 6
 )(
     input wire [31:0] predictPc,
     output reg predict,
@@ -90,6 +90,19 @@ module BTB #(
                         end
                     end
                 `endif
+            end
+        end
+    end
+
+    reg [31:0] stats_collision;
+
+    always @(posedge clk, posedge rst) begin
+        if (rst) begin
+            stats_collision <= 0;
+        end
+        else begin
+            if (update && valid[updateSetAddr] && btbTags[updateSetAddr] != updateTagAddr) begin
+                stats_collision <= stats_collision + 1;
             end
         end
     end
